@@ -44,6 +44,34 @@ IMP.request_pay({
 
 ## 책 - django 실서비스 적용하기 
 
+https://github.com/web-together/Django-Shop/tree/master/order
+
+주요 코드 해설
+
+[`iamport.py`](https://github.com/web-together/Django-Shop/blob/master/order/iamport.py)
+
+```
+get_token
+    settings.py에 등록한 key, secret 토대로 토큰값을 받아온다
+    이 때 토큰 받아오는 url은 https://api.iamport.kr/users/getToken
+
+payment_prepare
+    get_token을 통해 토큰값 받아오고, 그 토큰과 
+    order정보, 갯수가 담긴 데이터 (access data)를
+    결제를 준비 url로 보낸다.
+    이 때 결제를 준비하는 url은 https://api.iamport.kr/payments/prepare
+
+find_transaction
+    트랜젝션이 이루어졌는지 확인
+    즉, 실제로 거래가 결과적으로 이루어졌는지 조회
+
+    order_id를 통해 결제 내역 조회
+
+    이 때 결제를 조회하는 url은 url = "https://api.iamport.kr/payments/find/"+order_id
+
+    결제가 완료되었음을 확인한다면 그제서야 DB에 결제내역 저장
+```
+
 ### reference
 
  - [공식 사이트](https://www.iamport.kr/)
