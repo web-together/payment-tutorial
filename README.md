@@ -124,7 +124,9 @@ post_save.connect(order_payment_validation,sender=OrderTransaction)
 #### [`views.py`](https://github.com/web-together/Django-Shop/blob/master/order/views.py)
 
 > 유저는 order_create으로 들어간 html에서 결제를 진행하고
+>
 > 결제는 OrderCreateAjaxView -> OrderCheckoutAjaxView -> checkout.js -> OrderImpAjaxView 순 진행
+>
 > 결제가 완료되면 order_complete으로 이동
 
 ```
