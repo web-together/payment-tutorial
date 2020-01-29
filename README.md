@@ -44,7 +44,11 @@ IMP.request_pay({
 
 ## 책 - django 실서비스 적용하기 
 
-결제를 담당하는 앱 : https://github.com/web-together/Django-Shop/tree/master/order
+### 한 줄 요약 : checkout.js를 안전하게, 올바르게 불러오기 위한 빌드업
+
+결제구현 예외처리, 예외처리, 예외처리!
+
+결제 담당 앱 : https://github.com/web-together/Django-Shop/tree/master/order
 
 ### 주요 코드 해설
 
@@ -82,16 +86,9 @@ OrderItem
     생략
 
 class OrderTransaction(models.Model):
-    주문이 오가는 
-
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    merchant_order_id = models.CharField(max_length=120, null=True, blank=True)
-    transaction_id = models.CharField(max_length=120, null=True,blank=True)
-    amount = models.PositiveIntegerField(default=0)
-    transaction_status = models.CharField(max_length=220, null=True,blank=True)
-    type = models.CharField(max_length=120,blank=True)
-    created = models.DateTimeField(auto_now_add=True,auto_now=False)
-
+    실제 주문 트랜젝션에서 유효하게 다루어질 정보들 
+    트랜젝션 정보 그 자체
+    
     objects = OrderTransactionManager()
 
 
@@ -125,6 +122,11 @@ post_save.connect(order_payment_validation,sender=OrderTransaction)
 ```
 
 #### [`views.py`](https://github.com/web-together/Django-Shop/blob/master/order/views.py)
+
+> 유저는 order_create으로 들어간 html에서 결제를 진행하고
+> 결제는 OrderCreateAjaxView -> OrderCheckoutAjaxView -> checkout.js -> OrderImpAjaxView 순 진행
+> 결제가 완료되면 order_complete으로 이동
+
 ```
 order_create(request)
     생략
@@ -132,11 +134,23 @@ order_create(request)
 order_complete
     생략
 
+ >> 실 결제를 하는 ajax처리 view들이 order 앱 view의 핵심!
+
 class OrderCreateAjaxView(View):
+    로그인 된 사용자인지 (authenticated) 확인    
+    장바구니에 담긴 내용을 토대로 주문
+    주문 정보 저장 (form.save)
+    OrderItem 생성 (OrderItem.objects.create)
+    장바구니 지우기 (clear)
 
 class OrderCheckoutAjaxView(View):
+    로그인 된 사용자인지 (authenticated) 확인    
+    OrderTransaction 객체 생성
+    merchant_order_id 반환받음
 
 class OrderImpAjaxView(View):
+    merchant_order_id로 실제 거래가 이루어졌는지 확인
+    주문 완료시 order_complete 호출 > 주문 완료 html 띄우기
 ```
 
 ### reference
