@@ -80,15 +80,18 @@ find_transaction
 
 ```
 Order
-    생략
+    주문자 이름, 이메일, 주소, 우편번호(postal code), 도시, 생성날짜, 수정날짜, 결제여부, 쿠폰
 
 OrderItem
-    생략
+    주문에 필요한 제품 정보
+    주문정보(바로 위 Order), 상품, 가격, 수량
 
 class OrderTransaction(models.Model):
     실제 주문 트랜젝션에서 유효하게 다루어질 정보들 
     트랜젝션 정보 그 자체
-    
+
+    주문정보(Order), 판매자정보, transaction id, 수량, transaction 상태
+
     objects = OrderTransactionManager()
 
 
@@ -103,21 +106,6 @@ OrderTransactionManager
 
 
 def order_payment_validation(sender, instance, created, *args, **kwargs):
-    if instance.transaction_id:
-        import_transaction = OrderTransaction.objects.get_transaction(merchant_order_id=instance.merchant_order_id)
-
-        merchant_order_id = import_transaction['merchant_order_id']
-        imp_id = import_transaction['imp_id']
-        amount = import_transaction['amount']
-
-        local_transaction = OrderTransaction.objects.filter(merchant_order_id = merchant_order_id, transaction_id = imp_id,amount = amount).exists()
-
-        if not import_transaction or not local_transaction:
-            raise ValueError("비정상 거래입니다.")
-
-# 결제 정보가 생성된 후에 호출할 함수를 연결해준다.
-from django.db.models.signals import post_save
-post_save.connect(order_payment_validation,sender=OrderTransaction)
 
 ```
 
