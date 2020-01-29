@@ -72,6 +72,73 @@ find_transaction
     결제가 완료되었음을 확인한다면 그제서야 DB에 결제내역 저장
 ```
 
+[`models.py`](https://github.com/web-together/Django-Shop/blob/master/order/models.py)
+
+```
+Order
+    생략
+
+OrderItem
+    생략
+
+class OrderTransaction(models.Model):
+    주문이 오가는 
+
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    merchant_order_id = models.CharField(max_length=120, null=True, blank=True)
+    transaction_id = models.CharField(max_length=120, null=True,blank=True)
+    amount = models.PositiveIntegerField(default=0)
+    transaction_status = models.CharField(max_length=220, null=True,blank=True)
+    type = models.CharField(max_length=120,blank=True)
+    created = models.DateTimeField(auto_now_add=True,auto_now=False)
+
+    objects = OrderTransactionManager()
+
+
+OrderTransactionManager
+    OrderTrasaction을 관리하는 manager클래스
+
+    결제정보를 만들고, 조회할 수 있게 한다.
+    이 때 결제정보는 hash값으로 암호화하여 생성한다. 
+
+    def create_new
+    def get_transaction
+
+
+def order_payment_validation(sender, instance, created, *args, **kwargs):
+    if instance.transaction_id:
+        import_transaction = OrderTransaction.objects.get_transaction(merchant_order_id=instance.merchant_order_id)
+
+        merchant_order_id = import_transaction['merchant_order_id']
+        imp_id = import_transaction['imp_id']
+        amount = import_transaction['amount']
+
+        local_transaction = OrderTransaction.objects.filter(merchant_order_id = merchant_order_id, transaction_id = imp_id,amount = amount).exists()
+
+        if not import_transaction or not local_transaction:
+            raise ValueError("비정상 거래입니다.")
+
+# 결제 정보가 생성된 후에 호출할 함수를 연결해준다.
+from django.db.models.signals import post_save
+post_save.connect(order_payment_validation,sender=OrderTransaction)
+
+```
+
+[`views.py`](https://github.com/web-together/Django-Shop/blob/master/order/views.py)
+```
+order_create(request)
+    생략
+
+order_complete
+    생략
+
+class OrderCreateAjaxView(View):
+
+class OrderCheckoutAjaxView(View):
+
+class OrderImpAjaxView(View):
+```
+
 ### reference
 
  - [공식 사이트](https://www.iamport.kr/)
