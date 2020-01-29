@@ -44,11 +44,11 @@ IMP.request_pay({
 
 ## 책 - django 실서비스 적용하기 
 
-https://github.com/web-together/Django-Shop/tree/master/order
+결제를 담당하는 앱 : https://github.com/web-together/Django-Shop/tree/master/order
 
-주요 코드 해설
+### 주요 코드 해설
 
-[`iamport.py`](https://github.com/web-together/Django-Shop/blob/master/order/iamport.py)
+#### [`iamport.py`](https://github.com/web-together/Django-Shop/blob/master/order/iamport.py)
 
 ```
 get_token
@@ -72,7 +72,7 @@ find_transaction
     결제가 완료되었음을 확인한다면 그제서야 DB에 결제내역 저장
 ```
 
-[`models.py`](https://github.com/web-together/Django-Shop/blob/master/order/models.py)
+#### [`models.py`](https://github.com/web-together/Django-Shop/blob/master/order/models.py)
 
 ```
 Order
@@ -124,7 +124,7 @@ post_save.connect(order_payment_validation,sender=OrderTransaction)
 
 ```
 
-[`views.py`](https://github.com/web-together/Django-Shop/blob/master/order/views.py)
+#### [`views.py`](https://github.com/web-together/Django-Shop/blob/master/order/views.py)
 ```
 order_create(request)
     생략
